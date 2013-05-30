@@ -1,72 +1,78 @@
 <?php
-// Browsersprache ermitteln
+//Author Christian Seiler
+//Modified by: Dustin Demuth
+
+//License CC0 http://creativecommons.org/publicdomain/zero/1.0/
+// See: http://aktuell.de.selfhtml.org/artikel/php/httpsprache/
+
+// Determine a browsers language
 function lang_getfrombrowser ($allowed_languages, $default_language, $lang_variable = null, $strict_mode = true) {
-        // $_SERVER['HTTP_ACCEPT_LANGUAGE'] verwenden, wenn keine Sprachvariable mitgegeben wurde
+        // Use $_SERVER['HTTP_ACCEPT_LANGUAGE'] if no lang_variable has been set
         if ($lang_variable === null) {
                 $lang_variable = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
         }
 
-        // wurde irgendwelche Information mitgeschickt?
+        // has some information been added?
         if (empty($lang_variable)) {
-                // Nein? => Standardsprache zurückgeben
+                // No? => return default language
                 return $default_language;
         }
 
-        // Den Header auftrennen
+        // Split the Header
         $accepted_languages = preg_split('/,\s*/', $lang_variable);
 
-        // Die Standardwerte einstellen
+        // Set defaults
         $current_lang = $default_language;
         $current_q = 0;
 
-        // Nun alle mitgegebenen Sprachen abarbeiten
+        // Iterate all Languages which had been provided
         foreach ($accepted_languages as $accepted_language) {
-                // Alle Infos über diese Sprache rausholen
+                // Get all information on the language
                 $res = preg_match ('/^([a-z]{1,8}(?:-[a-z]{1,8})*)'.
                                    '(?:;\s*q=(0(?:\.[0-9]{1,3})?|1(?:\.0{1,3})?))?$/i', $accepted_language, $matches);
 
-                // war die Syntax gültig?
+                // Valid Syntax?
                 if (!$res) {
-                        // Nein? Dann ignorieren
+                        // No? Ignore!
                         continue;
                 }
                 
-                // Sprachcode holen und dann sofort in die Einzelteile trennen
+                // Get language code and split into parts
                 $lang_code = explode ('-', $matches[1]);
 
-                // Wurde eine Qualität mitgegeben?
+                // Has a Quality been provided?
                 if (isset($matches[2])) {
-                        // die Qualität benutzen
+                        // Use the quality
                         $lang_quality = (float)$matches[2];
                 } else {
-                        // Kompabilitätsmodus: Qualität 1 annehmen
+                        // Compatibility Mode: Use Quality 1
                         $lang_quality = 1.0;
                 }
 
-                // Bis der Sprachcode leer ist...
+                // Until Languagecode is empty
                 while (count ($lang_code)) {
-                        // mal sehen, ob der Sprachcode angeboten wird
+                        // Try to find the language code in the array of allowd languages
                         if (in_array (strtolower (join ('-', $lang_code)), $allowed_languages)) {
-                                // Qualität anschauen
+                                // Look at the Quality
                                 if ($lang_quality > $current_q) {
-                                        // diese Sprache verwenden
+                                        // Uses this language
                                         $current_lang = strtolower (join ('-', $lang_code));
                                         $current_q = $lang_quality;
-                                        // Hier die innere while-Schleife verlassen
+                                        // exit inner loop
                                         break;
                                 }
                         }
-                        // Wenn wir im strengen Modus sind, die Sprache nicht versuchen zu minimalisieren
+                        // If in strict mode, don't try to minimise the language
                         if ($strict_mode) {
-                                // innere While-Schleife aufbrechen
+                                // break inner loop
                                 break;
                         }
-                        // den rechtesten Teil des Sprachcodes abschneiden
+                        // cut the right part of the array
                         array_pop ($lang_code);
                 }
         }
 
-        // die gefundene Sprache zurückgeben
+        // return the found language
         return $current_lang;
 }
 ?>
