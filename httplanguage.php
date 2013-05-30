@@ -2,7 +2,7 @@
 //Author Christian Seiler
 //Modified by: Dustin Demuth
 
-//License CC0 http://creativecommons.org/publicdomain/zero/1.0/
+// License CC0 http://creativecommons.org/publicdomain/zero/1.0/
 // See: http://aktuell.de.selfhtml.org/artikel/php/httpsprache/
 
 // Determine a browsers language
